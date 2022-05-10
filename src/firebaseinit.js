@@ -28,8 +28,6 @@ whenSignedOut.hide();
 
 const provider = new GoogleAuthProvider();
 
-
-
 signInBtn.onclick = () => signInWithPopup(auth, provider);
 
 signOutBtn.onclick = () => signOut(auth);
