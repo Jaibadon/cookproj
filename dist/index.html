@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="main.css">
+    <title>Pokemon Clone</title>
+
+    <script>
+    function show(shown, hiddena, hiddenb) {
+      window.location.hash = '#' + shown;
+      document.getElementById(shown).style.display='block';
+      document.getElementById(hiddena).style.display='none';
+      document.getElementById(hiddenb).style.display='none';
+      return false;
+    }
+    </script>
+
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+      crossorigin="anonymous"></script>
+  </head>
+
+
+  <body>
+    <ul class="navbar">
+      <li><a href="#home" onclick="show('home','game','about');">Home</a></li>
+      <li><a href="#game" onclick="show('game','home','about');">Game</a></li>
+      <li><a href="#about" onclick="show('about','game','home');">About</a></li>
+      <section id="whenSignedOut">
+      <li><a id="signInBtn">  Login</a></li>
+    </section>
+    <section id="whenSignedIn">
+      <li><a id="signOutBtn">  Log Out</a></li>
+    </section>
+    </ul>
+
+    <div id="home">
+      Home
+    </div>
+
+    <div id="game">
+      <section id="whenSignedOut">
+        <h1>Please Sign In With Google Account</h1>
+      </section>
+
+      <section id="whenSignedIn" style="position:relative">
+      <canvas id="canvas"></canvas>
+      </div>
+    </section>
+    </div>
+    
+    <div id="about">
+      About
+    </div>
+
+    <!--delete dot before ./bundle.js for firebase build-->
+    <script src="./bundle.js"></script>
+  </body>
+</html>
