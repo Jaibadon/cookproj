@@ -1,7 +1,3 @@
-//root pass for wsl is Justic6a
-//difficulty of questions
-
-
 document.addEventListener("DOMContentLoaded", function(event) {
     var ahash = window.location.hash.slice(1);
     if(window.location.hash == ""){
