@@ -1,12 +1,9 @@
-body {
-    background-color: white;
-}
 .navbar {
 list-style-type: none;
 margin: 0;
 padding: 0;
-overflow: hidden;
-background-color: #333;
+overflow:visible;
+background-color: rgb(38, 38, 38);
 }
 
 li {
@@ -69,3 +66,51 @@ canvas {
     border: none;
     background: none;
 }
+
+.dropbtn {
+    background-color: #04AA6D;
+    color: white;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+    z-index: 5;
+  }
+  
+  .leveldropdown {
+    position: relative;
+    display: inline-block;
+    z-index:5;
+  }
+  
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 5;
+  }
+  
+  .dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    z-index: 5;
+  }
+  
+  .dropdown-content a:hover {background-color: #ddd;}
+  
+  .leveldropdown:hover .dropdown-content {display: block;}
+  
+  .leveldropdown:hover .dropbtn {background-color: #3e8e41;}
+
+  
+
+    html { 
+        background: linear-gradient(rgba(0,0,0,0.5), rgba(0, 0, 0, 0.5)), url("https://images.unsplash.com/photo-1528712306091-ed0763094c98?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=440&q=80") no-repeat center center fixed; 
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+      }

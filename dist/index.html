@@ -28,8 +28,15 @@
 
   <body>
     <ul class="navbar">
-      <li><a href="#home" onclick="show('home','game','about');">Home</a></li>
-      <li><a href="#game" onclick="show('game','home','about');">Game</a></li>
+      <li class="leveldropdown">
+        <button class="dropbtn">Levels</button>
+        <div class="dropdown-content">
+          <a href="#">Link 1</a>
+          <a href="#">Link 2</a>
+          <a href="#">Link 3</a>
+        </div></li>
+      <li><a href="#game" onclick="show('game','home','about');">Start Game</a></li>
+      <li class="homebutton"><a href="#home" onclick="show('home','game','about');">Cooking Website</a></li>
       <li><a href="#about" onclick="show('about','game','home');">About</a></li>
       <section id="whenSignedOut">
       <li><a id="signInBtn">  Login</a></li>
@@ -40,7 +47,7 @@
     </ul>
 
     <div id="home">
-      Home
+        <h1 class="title">Cooking Website</h1>
     </div>
 
     <div id="game">
