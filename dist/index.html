@@ -27,16 +27,18 @@
 
 
   <body>
+    <div>
     <ul class="navbar">
-      <li class="leveldropdown">
-        <button class="dropbtn">Levels</button>
+      <li class="dropdown">
+        <a href="javascript:void(0)" class="dropbtn">Levels ▾</a>
         <div class="dropdown-content">
-          <a href="#">Link 1</a>
-          <a href="#">Link 2</a>
-          <a href="#">Link 3</a>
-        </div></li>
+          <a href="#">Level 1</a>
+          <a href="#">Level 2</a>
+          <a href="#">Level 3</a>
+        </div>
+      </li>
       <li><a href="#game" onclick="show('game','home','about');">Start Game</a></li>
-      <li class="homebutton"><a href="#home" onclick="show('home','game','about');">Cooking Website</a></li>
+      <li class="homelist"><a class="homebutton" href="#home" onclick="show('home','game','about');">Cooking Website</a></li>
       <li><a href="#about" onclick="show('about','game','home');">About</a></li>
       <section id="whenSignedOut">
       <li><a id="signInBtn">  Login</a></li>
@@ -45,7 +47,7 @@
       <li><a id="signOutBtn">  Log Out</a></li>
     </section>
     </ul>
-
+    </div>
     <div id="home">
         <h1 class="title">Cooking Website</h1>
     </div>
@@ -55,10 +57,9 @@
         <h1>Please Sign In With Google Account</h1>
       </section>
 
-      <section id="whenSignedIn" style="position:relative">
-      <canvas id="canvas"></canvas>
-      </div>
-    </section>
+      <section id="whenSignedIn">
+          <canvas id="canvas"></canvas>
+     </section>
     </div>
     
     <div id="about">

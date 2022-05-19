@@ -1,94 +1,45 @@
-.navbar {
-list-style-type: none;
-margin: 0;
-padding: 0;
-overflow:visible;
-background-color: rgb(38, 38, 38);
-}
-
-li {
-float: left;
-}
-
-li a {
-display: block;
-color: white;
-text-align: center;
-padding: 14px 16px;
-text-decoration: none;
-}
-
-li a:hover {
-background-color: #111;
-}
-
-canvas {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    width: 100%;
-    background: #ABABAB;
-    position: relative;
-    z-index: 1;
-  }
-
-#floatingDiv {
-    background-color: rgba(255,255,255,0.5);;
-    position: absolute;
-    z-index: 5;
-    top: 87%;
-    left: 40%;
-    display: inline-block;
-}
-
-
-.questiontext {
-    font-family: 'VT323', monospace;
-    font-size:3vw;
-    display: inline-block;
-}
-
-.inputbox {
-    font-family: 'VT323', monospace;
-    border-radius: 0px;
-    border-width: 3px;
-    border-color: black;
-    display: inline-block;
-    width: 1.5vw;
-    font-size:3vw;
-}
-
-.attackbutton {
-    font-family: 'VT323', monospace;
-    font-size:3vw;
-    display: inline-block;
+ul {
+    list-style-type: none;
+    margin: 0;
     padding: 0;
-    border: none;
-    background: none;
-}
-
-.dropbtn {
-    background-color: #04AA6D;
-    color: white;
-    padding: 16px;
-    font-size: 16px;
-    border: none;
-    z-index: 5;
+    overflow: hidden;
+    background-color: #333;
   }
   
-  .leveldropdown {
-    position: relative;
+  li {
+    float: left;
+  }
+
+  .homelist {
+    display:inline-block;
+    margin-right:10px;
+  }
+  
+  li a, .dropbtn {
+    font-family: Arial, Helvetica, sans-serif;
     display: inline-block;
-    z-index:5;
+    color: greenyellow;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+  }
+  
+  li a:hover, .dropdown:hover .dropbtn {
+    background-color: greenyellow;
+    color: black;
+  }
+  
+  li.dropdown {
+    display: inline-block;
   }
   
   .dropdown-content {
     display: none;
     position: absolute;
-    background-color: #f1f1f1;
+    background-color: #f9f9f9;
     min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 5;
+    z-index: 1;
   }
   
   .dropdown-content a {
@@ -96,21 +47,33 @@ canvas {
     padding: 12px 16px;
     text-decoration: none;
     display: block;
-    z-index: 5;
+    text-align: left;
   }
   
-  .dropdown-content a:hover {background-color: #ddd;}
+  .dropdown-content a:hover {background-color: #f1f1f1;}
   
-  .leveldropdown:hover .dropdown-content {display: block;}
-  
-  .leveldropdown:hover .dropbtn {background-color: #3e8e41;}
-
-  
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
 
     html { 
-        background: linear-gradient(rgba(0,0,0,0.5), rgba(0, 0, 0, 0.5)), url("https://images.unsplash.com/photo-1528712306091-ed0763094c98?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=440&q=80") no-repeat center center fixed; 
-        -webkit-background-size: cover;
-        -moz-background-size: cover;
-        -o-background-size: cover;
-        background-size: cover;
-      }
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0, 0, 0, 0.5)), url("https://images.unsplash.com/photo-1528712306091-ed0763094c98?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=440&q=80") no-repeat center center fixed; 
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+    }
+    
+    body {
+        margin-top: 0em;
+        margin-left: 0em;
+        margin-right: 0em;
+    }
+
+    .homebutton, .homebutton:hover{
+        background-color: #333;
+        color: white;
+        font-size: 110%;
+    }
+
+      
