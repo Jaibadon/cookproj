@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/Jaibadon/cookproj#readme",
   "dependencies": {
+    "bootstrap": "^5.1.3",
     "firebase": "^9.6.10",
     "firebase-cli": "^1.2.0",
     "firebaseui": "^6.0.1",

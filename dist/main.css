@@ -11,8 +11,11 @@ ul {
   }
 
   .homelist {
-    display:inline-block;
-    margin-right:10px;
+    float: none;
+    position: absolute;
+    top: 3.2%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
   
   li a, .dropbtn {
@@ -76,4 +79,33 @@ ul {
         font-size: 110%;
     }
 
-      
+
+    .searchglass {
+        position: absolute;
+        width: 24px;
+        top: 1.7%;
+        left: 18%;
+        z-index: 5;
+    }
+
+    #signInBtn,#signOutBtn{
+      float: none;
+      position: absolute;
+      top: 3.2%;
+      left: 90%;
+      transform: translate(-50%, -50%);
+    }
+
+    .about {
+      float: none;
+      position: absolute;
+      top: 3.2%;
+      left: 80%;
+      transform: translate(-50%, -50%);
+    }
+
+    @media screen and (max-width: 600px) {
+      li {
+        display: inline-block;
+      }
+    }

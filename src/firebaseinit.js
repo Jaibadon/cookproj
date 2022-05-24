@@ -21,8 +21,6 @@ const whenSignedOut = $('[id=whenSignedOut]');
 const signInBtn = document.getElementById('signInBtn');
 const signOutBtn = document.getElementById('signOutBtn');
 
-const userDetails = document.getElementById('userDetails');
-
 whenSignedIn.hide();
 whenSignedOut.hide();
 
