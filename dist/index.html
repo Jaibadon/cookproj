@@ -3,9 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <!--<link rel="stylesheet" href="main.css">-->
+    <link rel="stylesheet" href="main.css">
+    
     <title>Cooking Game</title> 
 
     <script>
@@ -27,32 +26,62 @@
 
   <body>
 
-
-    <nav class="navbar navbar-inverse">
-      <div class="container-fluid">
-        <ul class="nav navbar-nav">
-          <li><a href="#about" onclick="show('about','game','home');">About</a></li>
-            <li id="whenSignedOut"><a id="signInBtn"><span class="glyphicon glyphicon-log-in"></span>Login</a></li>
-            <li id="whenSignedIn"><a id="signOutBtn">Log Out <span class="glyphicon glyphicon-log-out"></span></a></li>
-        </ul>
-        <form class="navbar-form navbar-left" action="/action_page.php">
-          <div class="input-group">
-            <input type="text" class="form-control" placeholder="Search" name="search">
-            <div class="input-group-btn">
-              <button class="btn btn-default" type="submit">
-                <i class="glyphicon glyphicon-search"></i>
-              </button>
-            </div>
+<header class="p-3 bg-dark text-white">
+    <div class="container">
+      <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+        <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none" data-bcup-haslogintext="no">
+          <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap"><use xlink:href="#bootstrap"></use></svg>
+        </a>
+        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+          <li><button class="btn btn-dark dropdown-toggle text-success" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+            Levels
+          </button>
+          <div class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton1">
+            <form class="p-1 bg-dark border-dark">
+              <input type="search" class="form-control form-control-dark" autocomplete="false" placeholder="Type to filter...">
+            </form>
+            <ul class="list-unstyled mb-0">
+              <li><a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-bcup-haslogintext="no">
+                <span class="d-inline-block p-1"></span>
+                Level 1
+              </a></li>
+              <li><a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-bcup-haslogintext="no">
+                <span class="d-inline-block p-1"></span>
+                Level 2
+              </a></li>
+              <li><a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-bcup-haslogintext="no">
+                <span class="d-inline-block p-1"></span>
+                Level 3
+              </a></li>
+              <li><a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" data-bcup-haslogintext="no">
+                <span class="d-inline-block p-1"></span>
+                Level 4
+              </a></li>
+            
+            </ul>
           </div>
-        </form>
-        <div class="navbar-header">
-          <a href="#home" class="navbar-brand" onclick="show('home','game','about');">Home</a>
+          </li>
+          <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
+            <input type="search" class="form-control form-control-dark text-white bg-dark" placeholder="Search..." aria-label="Search">
+          </form>
+          <li><a href="#home" class="nav-link px-2 text-success" data-bcup-haslogintext="no" onclick="show('home','game','about');">Home</a></li>
+          <li><a href="#about" onclick="show('about','game','home');" class="nav-link px-2 text-success" data-bcup-haslogintext="no">About</a></li>
+        </ul>
+
+        
+
+        <div class="text-end">
+          <div id="whenSignedOut"><button type="button" class="btn btn-dark" data-bcup-haslogintext="no" id="signInBtn">Login</button></div>
+          <div id="whenSignedIn"><button type="button" class="btn btn-dark" data-bcup-haslogintext="no" id="signOutBtn">Log Out</button></div>
         </div>
       </div>
-    </nav>
+    </div>
+  </header>
 
-    <div id="home">
-        <h1 class="title">Cooking Website</h1>
+
+
+    <div id="home" class="carousel-caption">
+        <h1 id="title">Cooking Website</h1>
         <a href="#game" onclick="show('game','home','about');">Start Game</a>
     </div>
 
