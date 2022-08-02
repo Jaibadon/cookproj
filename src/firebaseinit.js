@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut} from "firebase/auth";
-import { getDatabase, ref, update, runTransaction, onValue} from "firebase/database";
+import { getDatabase, ref, update, runTransaction, onValue, query, orderByChild, equalTo, set} from "firebase/database";
 import { getStorage, uploadBytes, getBytes, ref as sRef } from "firebase/storage";
 import 'bootstrap';
 
@@ -118,8 +118,11 @@ onValue(ref(db, 'recipes'), (snapshot) => {
   snapshot.forEach((childSnapshot) => {
 
       var viewbutton = document.getElementById("view_recipe" + n);
+      var upvotebutton = document.getElementById("upvote" + n);
 
       viewbutton.onclick = function(){sLargeRc('enrec' + childSnapshot.key)};
+      upvotebutton.onclick = function(){upvoteRecipe(childSnapshot.key, userid)};
+
 
       childSnapshot.forEach((ccduSnapshot) =>{
          var recipeelement = document.getElementById(ccduSnapshot.key + n);
@@ -129,8 +132,6 @@ onValue(ref(db, 'recipes'), (snapshot) => {
       });
       n = n + 1;
   });
-}, {
-  onlyOnce: true
 });
 
 function createRec(recinum, reciref){
@@ -208,12 +209,26 @@ function writeRecipe(recipe_shorthand, recipe_name, recipe_time, recipe_ingredie
 
 
 function upvoteRecipe(recipe_shorthand, userid){
+        if(userid != null){
         const upvotesRef = ref(db, 'recipes/' + recipe_shorthand + "/upvotes");
-        if(query(ref(db, 'users/' + userid), orderByChild('updoots'), equalTo(recipe_shorthand)))
-        runTransaction(upvotesRef, (current_value) => {
+        const userref = ref(db, 'users/' + userid);
+       // console.log(query(ref(db, 'users/' + userid), orderByChild('updoots'), equalTo(recipe_shorthand)));
+        //if(query(ref(db, 'users/' + userid), orderByChild('updoots'), equalTo(recipe_shorthand)) == null){
+          runTransaction(upvotesRef, (current_value) => {
+
+            update(userref, {
+              [recipe_shorthand] : 1
+            } );
+
             return (current_value || 0) + 1;
           });
+        //}
+        
+        }else{
+            console.log("User not logged in, redirecting to login...")
+            signInWithPopup(auth, provider);
         }
+  	    }
 
 
 
