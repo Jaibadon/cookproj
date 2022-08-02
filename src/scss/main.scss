@@ -1,9 +1,8 @@
-    $success: lime;
+    $success: #86c232;
 
     @import "../../node_modules/bootstrap/scss/bootstrap";
     
-    html { 
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0, 0, 0, 0.5)), url("https://images.unsplash.com/photo-1528712306091-ed0763094c98?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=440&q=80") no-repeat center center fixed; 
+    html {
             -webkit-background-size: cover;
             -moz-background-size: cover;
             -o-background-size: cover;

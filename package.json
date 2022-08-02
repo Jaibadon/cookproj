@@ -27,6 +27,7 @@
     "firebase-cli": "^1.2.0",
     "firebaseui": "^6.0.1",
     "jquery": "^3.6.0",
+    "uuid": "^8.3.2",
     "yarn": "^1.22.18"
   },
   "devDependencies": {
