@@ -29,7 +29,6 @@ function show(shown) {
   }).get();
 
   for(var i = 0; i < ids.length; i++){
-    console.log(ids[i]);
     document.getElementById(ids[i]).style.display='none';
   }
   document.getElementById(shown).style.display='block';
@@ -56,7 +55,7 @@ function show(shown) {
     <div class="container">
       <div class="flex-wrap align-items-center ms-auto">
         <ul class="nav col-12 col-lg-auto mb-2 mb-md-0">
-          <li><button class="btn btn-dark dropdown-toggle text-success" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+         <!-- <li><button class="btn btn-dark dropdown-toggle text-success" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
             Levels
           </button>
           <div class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton1">
@@ -82,7 +81,7 @@ function show(shown) {
               </a></li>
             </ul>
           </div>
-          </li>
+          </li>-->
           <li><button href="#recipes" onclick="show('recipes');" class="nav-link px-3 text-success btn btn-dark" >Recipes</button></li>
           <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
             <input type="search" class="form-control form-control-dark text-white bg-dark" placeholder="Search Recipes" aria-label="Search">

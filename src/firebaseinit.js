@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut} from "firebase/auth";
-import { getDatabase, ref, update, runTransaction, onValue, query, orderByChild, equalTo, set} from "firebase/database";
+import { getDatabase, ref, update, runTransaction, onValue, query, orderByKey, equalTo} from "firebase/database";
 import { getStorage, uploadBytes, getBytes, ref as sRef } from "firebase/storage";
 import 'bootstrap';
 
@@ -32,7 +32,8 @@ function sLargeRc(shown){
 
 
 document.addEventListener("DOMContentLoaded", function(event) {
-    var ahash = window.location.hash.slice(1);
+  var ahash = window.location.hash.slice(1);
+
     if(window.location.hash == ""){
         show('home');
     }
@@ -55,9 +56,39 @@ document.addEventListener("DOMContentLoaded", function(event) {
             else {
               show('home')
             }
-            
     }
 });
+
+
+window.addEventListener('hashchange', function() {
+  var ahash = window.location.hash.slice(1);
+
+  if(window.location.hash == ""){
+      show('home');
+  }
+  else{
+          if(ahash == 'game'){
+             show('game');
+          }
+          else if(ahash == 'home'){
+              show('home');
+          }
+          else if(ahash == 'about'){
+              show('about');
+          }
+          else if(ahash == 'recipes'){
+              show('recipes');
+          }
+          else if(ahash.match("enrec") != null){
+            sLargeRc(ahash)
+          }
+          else {
+            show('home')
+          }
+  }
+});
+
+
 
 
 const firebaseConfig = {
@@ -173,9 +204,10 @@ for(var i = 0; i < recinum; i++){
           <button type="button" class="btn btn-sm btn-outline-secondary" id="view_recipe` + i + `">View</button>
           <button type="button" class="btn btn-sm btn-outline-secondary" id="edit_recipe` + i + `">Edit</button>
           <button type="button" class="btn btn-sm btn-outline-secondary" id="upvote` + i + `">Upvote</button>
+          <small>Upvotes: </small><small id="upvotes` + i + `"></small>
+          <small class="text-muted" id="recipe_time` + i + `"></small>
         </div>
-        <small>Upvotes: </small><small id="upvotes` + i + `"></small>
-        <small class="text-muted" id="recipe_time` + i + `"></small>
+        
       </div>
     </div>
   `
@@ -211,17 +243,37 @@ function writeRecipe(recipe_shorthand, recipe_name, recipe_time, recipe_ingredie
 function upvoteRecipe(recipe_shorthand, userid){
         if(userid != null){
         const upvotesRef = ref(db, 'recipes/' + recipe_shorthand + "/upvotes");
-        const userref = ref(db, 'users/' + userid);
-       // console.log(query(ref(db, 'users/' + userid), orderByChild('updoots'), equalTo(recipe_shorthand)));
+        const userref = ref(db, 'users/' + userid + '/upvotedrecipes');
+
+          onValue(query(ref(db, 'users/' + userid + '/upvotedrecipes'), orderByKey(), equalTo(recipe_shorthand)), (snapshot) => {
+            var data = snapshot.val();
+            data = data[recipe_shorthand];
+            console.log(data);
+            if(data == null || data == 0){
+              runTransaction(upvotesRef, (current_value) => {
+
+                update(userref, {
+                  [recipe_shorthand] : 1
+                } );
+    
+                return (current_value || 0) + 1;
+              });
+            }
+            else{
+              runTransaction(upvotesRef, (current_value) => {
+
+                update(userref, {
+                  [recipe_shorthand] : 0
+                } );
+    
+                return (current_value || 0) - 1;
+              });
+            }
+          }, {
+            onlyOnce: true
+          })
         //if(query(ref(db, 'users/' + userid), orderByChild('updoots'), equalTo(recipe_shorthand)) == null){
-          runTransaction(upvotesRef, (current_value) => {
-
-            update(userref, {
-              [recipe_shorthand] : 1
-            } );
-
-            return (current_value || 0) + 1;
-          });
+          
         //}
         
         }else{

@@ -11129,4 +11129,8 @@ html {
   top: 45%;
 }
 
+.align-items-center {
+  overflow: auto;
+}
+
 /*# sourceMappingURL=main.css.map */
