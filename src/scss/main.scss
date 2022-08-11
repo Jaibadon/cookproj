@@ -16,3 +16,8 @@
     .align-items-center{
       overflow: auto;
     }
+
+    [id*=upvote] svg {
+      width: 25px;
+      height: 25px;
+    }
