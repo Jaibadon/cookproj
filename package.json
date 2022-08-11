@@ -1,6 +1,6 @@
 {
   "name": "cookproj",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Educational Game",
   "main": "./src/firebaseinit.js",
   "scripts": {
