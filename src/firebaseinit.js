@@ -4,6 +4,8 @@ import { getDatabase, ref, update, runTransaction, onValue, query, orderByKey, e
 import { getStorage, uploadBytes, getBytes, ref as sRef } from "firebase/storage";
 import 'bootstrap';
 
+var recipeprops = ["shorthand", "name", "time", "ingredients", "instructions"];
+
 var completedimageload = false;
 
 function sLargeRc(shown){
@@ -26,7 +28,6 @@ function sLargeRc(shown){
   
     getBytes(storRef).then((arraybuf) => rWrec(arraybuf, true, docengref));
   
-  
     return false;
     }
 }
@@ -48,7 +49,16 @@ document.getElementById("uploadButton").onclick = () => {
 
   let file = fileElement.files[0];
 
-  writeRecipe("lasagne", "noice lasagne", "15mins", "AHSHSHSHS \n eat the beans", "beans and rice", file);
+  var finalwrite = [];
+
+  for(var i = 0; i < recipeprops.length; i++){
+    finalwrite[i] = document.getElementById("recipe_" + recipeprops[i] + "ni").value;
+    console.log(recipeprops[i]);
+  }
+
+  console.log(finalwrite);
+
+  writeRecipe(finalwrite[0], finalwrite[1], finalwrite[2], finalwrite[3], finalwrite[4], file);
 
 }
 
@@ -144,35 +154,42 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-
+var attachdone = false;
 
 onValue(ref(db, 'recipes'), (snapshot) => {
   createRec(snapshot.size, snapshot.ref);
 
   var n = 0;
 
+
   snapshot.forEach((childSnapshot) => {
+
+    console.log("ASMDANSJFNOAJSF", childSnapshot.key);
 
       var viewbutton = document.getElementById("view_recipe" + n);
       var upvotebutton = document.getElementById("upvote" + n);
-      if(isadmin == true){
+      if(isadmin == true && attachdone == false){
         var editbutton = document.getElementById("edit_recipe" + n);
-        editbutton.onclick = function(){show('editRecipe')};
+        editbutton.onclick = function(){
+
+            //very hard to make fully dynamic, will do if have time
+
+            for(var b = 0; b < recipeprops.length; b++){
+              var input = document.createElement("input");
+              input.type = "text";
+              input.id = "recipe_"+ recipeprops[b]+ "ni";
+              document.getElementById("editRecipe").insertBefore(input, document.getElementById("fileInput"));
+            }
+
+                show('editRecipe')
+              
+              };
+              attachdone = true;
       }
 
       viewbutton.onclick = function(){sLargeRc('enrec' + childSnapshot.key)};
       
       upvotebutton.onclick = function(){upvoteRecipe(childSnapshot.key, userid)};
-
-      if(completedimageload == false){
-        let storRef = sRef(storage, 'recipedata/' + childSnapshot.key + "/image");
-
-        var imageelement = document.getElementById("recipe_image" + n)
-      
-        getBytes(storRef).then((arraybuf) => rWrec(arraybuf, false, imageelement));  
-        completedimageload = true;
-      }
-
 
       childSnapshot.forEach((ccduSnapshot) =>{
          var recipeelement = document.getElementById(ccduSnapshot.key + n);
@@ -182,6 +199,7 @@ onValue(ref(db, 'recipes'), (snapshot) => {
       });
       n = n + 1;
   });
+
 });
 
 function createRec(recinum, reciref){
@@ -223,16 +241,19 @@ for(var i = 0; i < recinum; i++){
       </div>
     </div>
   `
+
   if(completedimageload == false){
     var imagerecipe = document.createElement("img");
 
     imagerecipe.id = ("recipe_image" + i);
 
-    cardDiv.appendChild(imagerecipe);
+    var beforeinsert = document.getElementsByClassName("card-body")[i];
+
+    cardDiv.insertBefore(imagerecipe, beforeinsert);
   }
 
 if(isadmin != true){
-  document.getElementById('edit_recipe').remove();
+  document.getElementById('edit_recipe' + i).remove();
 }
 
 
@@ -263,7 +284,7 @@ function writeRecipe(recipe_shorthand, recipe_name, recipe_time, recipe_ingredie
       uploadBytes(sRef(storage, 'recipedata/' + recipe_shorthand + "/save"), savefile).then((snapshot) => {
         console.log('Uploaded instructions and ingredients');
       });
-      
+
     }
 
 
@@ -277,7 +298,9 @@ function upvoteRecipe(recipe_shorthand, userid){
 
           onValue(query(ref(db, 'users/' + userid + '/upvotedrecipes'), orderByKey(), equalTo(recipe_shorthand)), (snapshot) => {
             var data = snapshot.val();
+            if(data != null){
             data = data[recipe_shorthand];
+            }
             console.log(data);
             if(data == null || data == 0){
               runTransaction(upvotesRef, (current_value) => {
