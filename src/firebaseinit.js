@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut} from "firebase/auth";
-import { getDatabase, ref, update, runTransaction, onValue, query, orderByKey, equalTo} from "firebase/database";
+import { getDatabase, ref, update, runTransaction, onValue, query, orderByKey, equalTo, orderByChild, startAt, endAt} from "firebase/database";
 import { getStorage, uploadBytes, getBytes, ref as sRef } from "firebase/storage";
 import 'bootstrap';
 
@@ -24,7 +24,7 @@ function sLargeRc(shown){
   
     let storRef = sRef(storage, 'recipedata/' + shown.split(/enrec/)[1] + "/save");
 
-    let docengref = document.getElementById("enlargedrecipe");
+    let docengref = document.getElementById("recipeintning");
   
     getBytes(storRef).then((arraybuf) => rWrec(arraybuf, true, docengref));
   
@@ -121,6 +121,8 @@ var userid = null;
 
 var isadmin = false;
 
+var gsnaprecog = -3;
+
 const auth = getAuth();
 
 const whenSignedIn = $('[id=whenSignedIn]');
@@ -157,14 +159,51 @@ onAuthStateChanged(auth, (user) => {
 var attachdone = false;
 
 onValue(ref(db, 'recipes'), (snapshot) => {
-  createRec(snapshot.size, snapshot.ref);
+  createRec(snapshot.size);
 
   var n = 0;
 
+  if(gsnaprecog != null && gsnaprecog != -3){
+    gsnaprecog.forEach((childSnapshot) => {
+
+      console.log("ASMDANSJFNOAJSF", childSnapshot.key);
+  
+        var viewbutton = document.getElementById("view_recipe" + n);
+        var upvotebutton = document.getElementById("upvote" + n);
+        if(isadmin == true && attachdone == false){
+          var editbutton = document.getElementById("edit_recipe" + n);
+          editbutton.onclick = function(){  
+              for(var b = 0; b < recipeprops.length; b++){
+                var input = document.createElement("input");
+                input.type = "text";
+                input.id = "recipe_"+ recipeprops[b]+ "ni";
+                document.getElementById("editRecipe").insertBefore(input, document.getElementById("fileInput"));
+              }
+                  show('editRecipe');
+                };
+                attachdone = true;
+        }
+        viewbutton.onclick = function(){sLargeRc('enrec' + childSnapshot.key)};
+        upvotebutton.onclick = function(){upvoteRecipe(childSnapshot.key, userid)};
+        childSnapshot.forEach((ccduSnapshot) =>{
+           var recipeelement = document.getElementById(ccduSnapshot.key + n);
+           if(typeof(recipeelement) != 'undefined' && recipeelement != null){
+              recipeelement.innerHTML = ccduSnapshot.val();
+           }
+        });
+        n = n + 1;
+    });
+    }else if(gsnaprecog == null){
+      var recipeelement = document.getElementById('recipes');
+
+      recipeelement.innerHTML = "No Recipes Found, Sorry!";
+    }
 
   snapshot.forEach((childSnapshot) => {
 
     console.log("ASMDANSJFNOAJSF", childSnapshot.key);
+
+    if(gsnaprecog == -3){
 
       var viewbutton = document.getElementById("view_recipe" + n);
       var upvotebutton = document.getElementById("upvote" + n);
@@ -198,11 +237,72 @@ onValue(ref(db, 'recipes'), (snapshot) => {
          }
       });
       n = n + 1;
+    }
   });
 
 });
 
-function createRec(recinum, reciref){
+var selectElement = document.getElementById('searchnavbar');
+
+selectElement.addEventListener('change', (event) => {
+
+  //window.location.search = selectElement.value;
+  //var b = window.location.href.substring(window.location.href.indexOf("?")+1, window.location.href.indexOf("#"));
+  var b = selectElement.value;
+
+  var b = b.split(" ");
+
+  for(var i = 0; i < b.length; i++){
+    onValue(query(ref(db, 'recipes/'), orderByChild('recipe_name'), startAt(b[i].toLowerCase()),endAt(b[i].toLowerCase()+"\u{f8ff}")), (snapshot) => {
+      console.log(b);
+      console.log(snapshot.val());
+      createRec(snapshot.size)
+      gsnaprecog = snapshot;
+      if(gsnaprecog != null && gsnaprecog != -3){
+        var n = 0;
+        gsnaprecog.forEach((childSnapshot) => {
+    
+          console.log("beans", childSnapshot.key);
+      
+            var viewbutton = document.getElementById("view_recipe" + n);
+            var upvotebutton = document.getElementById("upvote" + n);
+            if(isadmin == true && attachdone == false){
+              var editbutton = document.getElementById("edit_recipe" + n);
+              editbutton.onclick = function(){  
+                  for(var b = 0; b < recipeprops.length; b++){
+                    var input = document.createElement("input");
+                    input.type = "text";
+                    input.id = "recipe_"+ recipeprops[b]+ "ni";
+                    document.getElementById("editRecipe").insertBefore(input, document.getElementById("fileInput"));
+                  }
+                      show('editRecipe');
+                    };
+                    attachdone = true;
+            }
+            viewbutton.onclick = function(){sLargeRc('enrec' + childSnapshot.key)};
+            upvotebutton.onclick = function(){upvoteRecipe(childSnapshot.key, userid)};
+            childSnapshot.forEach((ccduSnapshot) =>{
+               var recipeelement = document.getElementById(ccduSnapshot.key + n);
+               if(typeof(recipeelement) != 'undefined' && recipeelement != null){
+                  recipeelement.innerHTML = ccduSnapshot.val();
+               }
+            });
+            n = n + 1;
+        });
+        }else if(gsnaprecog == null){
+          var recipeelement = document.getElementById('recipes');
+    
+          recipeelement.innerHTML = "No Recipes Found, Sorry!";
+        }
+        show('recipes');
+  });
+  }
+
+
+});
+
+function createRec(recinum){
+
 
   const myNode = document.getElementById("recipescontainer");
   while (myNode.firstChild) {
@@ -271,11 +371,11 @@ function writeRecipe(recipe_shorthand, recipe_name, recipe_time, recipe_ingredie
     
     update( recref, {
         recipe_name: recipe_name,
-        recipe_time: recipe_time
+        recipe_time: recipe_time,
+        upvotes: 0
         });
 
       var savefile = new File(["<div id='erecipe_instructions'>" + recipe_instructions + "</div><div id='erecipe_ingredients'>" + recipe_ingredients + "</div>"],recipe_shorthand + "save", {type: "text/html"});
-
         
       uploadBytes(sRef(storage, 'recipedata/' + recipe_shorthand + "/image"), recipe_image).then((snapshot) => {
         console.log('Uploaded image');
@@ -295,7 +395,6 @@ function upvoteRecipe(recipe_shorthand, userid){
         if(userid != null){
         const upvotesRef = ref(db, 'recipes/' + recipe_shorthand + "/upvotes");
         const userref = ref(db, 'users/' + userid + '/upvotedrecipes');
-
           onValue(query(ref(db, 'users/' + userid + '/upvotedrecipes'), orderByKey(), equalTo(recipe_shorthand)), (snapshot) => {
             var data = snapshot.val();
             if(data != null){
@@ -353,12 +452,7 @@ function rWrec(recbuffer, boolsav, htmname){
         htmname.src = imageUrl;
       })();
 
-    }
-    
-
-    
-    
-          
+    }   
 }
 
 //var firstrecipe = document.getElementById("recipes").firstChild.firstChild.firstChild;
