@@ -6,7 +6,7 @@ import 'bootstrap';
 
 var recipeprops = ["shorthand", "name", "time", "ingredients", "instructions"];
 
-var completedimageload = false;
+var completedimageload = [];
 
 function sLargeRc(shown){
   if(shown.match("enrec") != null){
@@ -20,7 +20,6 @@ function sLargeRc(shown){
       document.getElementById(ids[i]).style.display='none';
     }
     document.getElementById('enlargedrecipe').style.display='block';
-  
   
     let storRef = sRef(storage, 'recipedata/' + shown.split(/enrec/)[1] + "/save");
 
@@ -53,10 +52,7 @@ document.getElementById("uploadButton").onclick = () => {
 
   for(var i = 0; i < recipeprops.length; i++){
     finalwrite[i] = document.getElementById("recipe_" + recipeprops[i] + "ni").value;
-    console.log(recipeprops[i]);
   }
-
-  console.log(finalwrite);
 
   writeRecipe(finalwrite[0], finalwrite[1], finalwrite[2], finalwrite[3], finalwrite[4], file);
 
@@ -165,8 +161,6 @@ onValue(ref(db, 'recipes'), (snapshot) => {
 
   if(gsnaprecog != null && gsnaprecog != -3){
     gsnaprecog.forEach((childSnapshot) => {
-
-      console.log("ASMDANSJFNOAJSF", childSnapshot.key);
   
         var viewbutton = document.getElementById("view_recipe" + n);
         var upvotebutton = document.getElementById("upvote" + n);
@@ -188,7 +182,12 @@ onValue(ref(db, 'recipes'), (snapshot) => {
         childSnapshot.forEach((ccduSnapshot) =>{
            var recipeelement = document.getElementById(ccduSnapshot.key + n);
            if(typeof(recipeelement) != 'undefined' && recipeelement != null){
-              recipeelement.innerHTML = ccduSnapshot.val();
+              if(ccduSnapshot.key == "recipe_name"){
+                recipeelement.innerHTML = titleCase(ccduSnapshot.val());
+              }
+              else{
+                recipeelement.innerHTML = ccduSnapshot.val();
+              }
            }
         });
         n = n + 1;
@@ -201,18 +200,16 @@ onValue(ref(db, 'recipes'), (snapshot) => {
 
   snapshot.forEach((childSnapshot) => {
 
-    console.log("ASMDANSJFNOAJSF", childSnapshot.key);
-
     if(gsnaprecog == -3){
 
       var viewbutton = document.getElementById("view_recipe" + n);
       var upvotebutton = document.getElementById("upvote" + n);
+
       if(isadmin == true && attachdone == false){
         var editbutton = document.getElementById("edit_recipe" + n);
         editbutton.onclick = function(){
 
             //very hard to make fully dynamic, will do if have time
-
             for(var b = 0; b < recipeprops.length; b++){
               var input = document.createElement("input");
               input.type = "text";
@@ -233,14 +230,35 @@ onValue(ref(db, 'recipes'), (snapshot) => {
       childSnapshot.forEach((ccduSnapshot) =>{
          var recipeelement = document.getElementById(ccduSnapshot.key + n);
          if(typeof(recipeelement) != 'undefined' && recipeelement != null){
-            recipeelement.innerHTML = ccduSnapshot.val();
+            if(ccduSnapshot.key == "recipe_name"){
+              recipeelement.innerHTML = titleCase(ccduSnapshot.val());
+            }
+            else{
+              recipeelement.innerHTML = ccduSnapshot.val();
+            }
          }
       });
+        if(completedimageload[n] != true){
+        let storRef = sRef(storage, 'recipedata/' + childSnapshot.key + "/image");
+        var imageelement = document.getElementById("recipe_image" + n)
+
+        getBytes(storRef).then((arraybuf) => rWrec(arraybuf, false, imageelement));  
+        completedimageload[n] = true;
+      }
       n = n + 1;
     }
   });
 
 });
+
+function titleCase(str) {
+  var splitStr = str.toLowerCase().split(' ');
+  for (var i = 0; i < splitStr.length; i++) {
+      splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);     
+  }
+  return splitStr.join(' '); 
+}
+
 
 var selectElement = document.getElementById('searchnavbar');
 
@@ -254,16 +272,11 @@ selectElement.addEventListener('change', (event) => {
 
   for(var i = 0; i < b.length; i++){
     onValue(query(ref(db, 'recipes/'), orderByChild('recipe_name'), startAt(b[i].toLowerCase()),endAt(b[i].toLowerCase()+"\u{f8ff}")), (snapshot) => {
-      console.log(b);
-      console.log(snapshot.val());
       createRec(snapshot.size)
       gsnaprecog = snapshot;
       if(gsnaprecog != null && gsnaprecog != -3){
         var n = 0;
-        gsnaprecog.forEach((childSnapshot) => {
-    
-          console.log("beans", childSnapshot.key);
-      
+        gsnaprecog.forEach((childSnapshot) => {      
             var viewbutton = document.getElementById("view_recipe" + n);
             var upvotebutton = document.getElementById("upvote" + n);
             if(isadmin == true && attachdone == false){
@@ -284,9 +297,21 @@ selectElement.addEventListener('change', (event) => {
             childSnapshot.forEach((ccduSnapshot) =>{
                var recipeelement = document.getElementById(ccduSnapshot.key + n);
                if(typeof(recipeelement) != 'undefined' && recipeelement != null){
-                  recipeelement.innerHTML = ccduSnapshot.val();
+                  if(ccduSnapshot.key == "recipe_name"){
+                    recipeelement.innerHTML = titleCase(ccduSnapshot.val());
+                  }
+                  else{
+                    recipeelement.innerHTML = ccduSnapshot.val();
+                  }
                }
             });
+            if(completedimageload[n] != true){
+              let storRef = sRef(storage, 'recipedata/' + childSnapshot.key + "/image");
+              var imageelement = document.getElementById("recipe_image" + n)
+      
+              getBytes(storRef).then((arraybuf) => rWrec(arraybuf, false, imageelement));  
+              completedimageload[n] = true;
+            }
             n = n + 1;
         });
         }else if(gsnaprecog == null){
@@ -303,12 +328,18 @@ selectElement.addEventListener('change', (event) => {
 
 function createRec(recinum){
 
-
-  const myNode = document.getElementById("recipescontainer");
-  while (myNode.firstChild) {
-    myNode.removeChild(myNode.lastChild);
+  const myNode = document.getElementsByClassName("colDiv");
+  for(var n = 0; n < myNode.length; n++){
+  for (var i = 0; i < myNode.childElementCount; i++) {
+    var nodres = myNode[n].childNodes.item(i).id;
+    if(nodres != undefined){
+    if(nodres.match("recipe_image") == null){
+      myNode[n].removeChild(myNode[n].childNodes.item(i));
+    }    
   }
-
+  }
+}
+if(document.querySelectorAll(`[class^="colDiv"]`).length == 0){
 for(var i = 0; i < recinum; i++){
 
   //get all vars of recipe[i]
@@ -327,22 +358,28 @@ for(var i = 0; i < recinum; i++){
 
   document.getElementById("recipescontainer").append(colDiv);
 //build up string to go in innerhtml
-  cardDiv.innerHTML += `
-  <div class="card-body">
-      <p class="card-text" id="recipe_name` + i + `"></p>
-      <small class="text-muted" id="recipe_time` + i + `"></small>
-      <div class="d-flex justify-content-between align-items-center">
-        <div class="btn-group">
-          <button type="button" class="btn btn-sm btn-outline-secondary" id="view_recipe` + i + `">View</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary" id="edit_recipe` + i + `">Edit</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary" id="upvote` + i + `">Upvote</button>
-         <small id="upvotes` + i + `"></small>
-        </div>
+
+var ndiv = document.createElement('div');
+
+ndiv.classList.add('card-body');
+ndiv.insertAdjacentHTML('beforeend', `
+
+    <p class="card-text" id="recipe_name` + i + `"></p>
+    <small class="text-muted" id="recipe_time` + i + `"></small>
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="btn-group">
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="view_recipe` + i + `">View</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="edit_recipe` + i + `">Edit</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="upvote` + i + `">Upvote</button>
+       <small id="upvotes` + i + `"></small>
       </div>
     </div>
-  `
+`)
 
-  if(completedimageload == false){
+
+  cardDiv.append(ndiv);
+
+  if(completedimageload[i] != true){
     var imagerecipe = document.createElement("img");
 
     imagerecipe.id = ("recipe_image" + i);
@@ -357,7 +394,7 @@ if(isadmin != true){
 }
 
 
-  
+}
 //sort recipes into official and non-offical. The official ones you can play on the minigame.
 
   //document.getElementById(("upvote" + i)).addEventListener("click", function() {
@@ -400,7 +437,6 @@ function upvoteRecipe(recipe_shorthand, userid){
             if(data != null){
             data = data[recipe_shorthand];
             }
-            console.log(data);
             if(data == null || data == 0){
               runTransaction(upvotesRef, (current_value) => {
 
@@ -451,7 +487,6 @@ function rWrec(recbuffer, boolsav, htmname){
         var imageUrl = urlCreator.createObjectURL(recblob);
         htmname.src = imageUrl;
       })();
-
     }   
 }
 
