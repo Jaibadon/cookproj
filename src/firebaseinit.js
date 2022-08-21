@@ -154,46 +154,49 @@ onAuthStateChanged(auth, (user) => {
 
 var attachdone = false;
 
+function gangsi(n, childSnapshot){
+  var viewbutton = document.getElementById("view_recipe" + n);
+  var upvotebutton = document.getElementById("upvote" + n);
+  if(isadmin == true && attachdone == false){
+  var editbutton = document.getElementById("edit_recipe" + n);
+  editbutton.onclick = function(){  
+  for(var j = 0; j < recipeprops.length; j++){
+  var input = document.createElement("input");
+  input.type = "text";
+  input.id = "recipe_"+ recipeprops[j]+ "ni";             document.getElementById("editRecipe").insertBefore(input, document.getElementById("fileInput"));
+  }
+  show('editRecipe');
+  };
+  attachdone = true;
+  }
+  viewbutton.onclick = function(){sLargeRc('enrec' + childSnapshot.key)};
+  upvotebutton.onclick = function(){upvoteRecipe(childSnapshot.key, userid)};
+  childSnapshot.forEach((ccduSnapshot) =>{
+  var recipeelement = document.getElementById(ccduSnapshot.key + n);
+  if(typeof(recipeelement) != 'undefined' && recipeelement != null){
+  if(ccduSnapshot.key == "recipe_name"){
+  recipeelement.innerHTML = titleCase(ccduSnapshot.val());
+  }
+  else{
+  recipeelement.innerHTML = ccduSnapshot.val();
+                }
+             }
+          });
+}
+
 onValue(ref(db, 'recipes'), (snapshot) => {
-  createRec(snapshot.size);
+  createRec(snapshot.size, false);
 
   var n = 0;
 
   if(gsnaprecog != null && gsnaprecog != -3){
     gsnaprecog.forEach((childSnapshot) => {
   
-        var viewbutton = document.getElementById("view_recipe" + n);
-        var upvotebutton = document.getElementById("upvote" + n);
-        if(isadmin == true && attachdone == false){
-          var editbutton = document.getElementById("edit_recipe" + n);
-          editbutton.onclick = function(){  
-              for(var b = 0; b < recipeprops.length; b++){
-                var input = document.createElement("input");
-                input.type = "text";
-                input.id = "recipe_"+ recipeprops[b]+ "ni";
-                document.getElementById("editRecipe").insertBefore(input, document.getElementById("fileInput"));
-              }
-                  show('editRecipe');
-                };
-                attachdone = true;
-        }
-        viewbutton.onclick = function(){sLargeRc('enrec' + childSnapshot.key)};
-        upvotebutton.onclick = function(){upvoteRecipe(childSnapshot.key, userid)};
-        childSnapshot.forEach((ccduSnapshot) =>{
-           var recipeelement = document.getElementById(ccduSnapshot.key + n);
-           if(typeof(recipeelement) != 'undefined' && recipeelement != null){
-              if(ccduSnapshot.key == "recipe_name"){
-                recipeelement.innerHTML = titleCase(ccduSnapshot.val());
-              }
-              else{
-                recipeelement.innerHTML = ccduSnapshot.val();
-              }
-           }
-        });
+       gangsi(n, childSnapshot)
         n = n + 1;
     });
     }else if(gsnaprecog == null){
-      var recipeelement = document.getElementById('recipes');
+      var recipeelement = document.getElementById('recipescontainer');
 
       recipeelement.innerHTML = "No Recipes Found, Sorry!";
     }
@@ -202,42 +205,8 @@ onValue(ref(db, 'recipes'), (snapshot) => {
 
     if(gsnaprecog == -3){
 
-      var viewbutton = document.getElementById("view_recipe" + n);
-      var upvotebutton = document.getElementById("upvote" + n);
+      gangsi(n, childSnapshot)
 
-      if(isadmin == true && attachdone == false){
-        var editbutton = document.getElementById("edit_recipe" + n);
-        editbutton.onclick = function(){
-
-            //very hard to make fully dynamic, will do if have time
-            for(var b = 0; b < recipeprops.length; b++){
-              var input = document.createElement("input");
-              input.type = "text";
-              input.id = "recipe_"+ recipeprops[b]+ "ni";
-              document.getElementById("editRecipe").insertBefore(input, document.getElementById("fileInput"));
-            }
-
-                show('editRecipe')
-              
-              };
-              attachdone = true;
-      }
-
-      viewbutton.onclick = function(){sLargeRc('enrec' + childSnapshot.key)};
-      
-      upvotebutton.onclick = function(){upvoteRecipe(childSnapshot.key, userid)};
-
-      childSnapshot.forEach((ccduSnapshot) =>{
-         var recipeelement = document.getElementById(ccduSnapshot.key + n);
-         if(typeof(recipeelement) != 'undefined' && recipeelement != null){
-            if(ccduSnapshot.key == "recipe_name"){
-              recipeelement.innerHTML = titleCase(ccduSnapshot.val());
-            }
-            else{
-              recipeelement.innerHTML = ccduSnapshot.val();
-            }
-         }
-      });
         if(completedimageload[n] != true){
         let storRef = sRef(storage, 'recipedata/' + childSnapshot.key + "/image");
         var imageelement = document.getElementById("recipe_image" + n)
@@ -272,50 +241,36 @@ selectElement.addEventListener('change', (event) => {
 
   for(var i = 0; i < b.length; i++){
     onValue(query(ref(db, 'recipes/'), orderByChild('recipe_name'), startAt(b[i].toLowerCase()),endAt(b[i].toLowerCase()+"\u{f8ff}")), (snapshot) => {
-      createRec(snapshot.size)
+      if(snapshot.size > document.querySelectorAll(`[id^="recipe_image"]`).length){
+        createRec(snapshot.size, true)
+      }
+      else{
+        createRec(snapshot.size, false)
+      }
+      
       gsnaprecog = snapshot;
-      if(gsnaprecog != null && gsnaprecog != -3){
+      if(gsnaprecog != null && gsnaprecog != -3 && snapshot.size > 0){
+        var o = 0;
         var n = 0;
-        gsnaprecog.forEach((childSnapshot) => {      
-            var viewbutton = document.getElementById("view_recipe" + n);
-            var upvotebutton = document.getElementById("upvote" + n);
-            if(isadmin == true && attachdone == false){
-              var editbutton = document.getElementById("edit_recipe" + n);
-              editbutton.onclick = function(){  
-                  for(var b = 0; b < recipeprops.length; b++){
-                    var input = document.createElement("input");
-                    input.type = "text";
-                    input.id = "recipe_"+ recipeprops[b]+ "ni";
-                    document.getElementById("editRecipe").insertBefore(input, document.getElementById("fileInput"));
-                  }
-                      show('editRecipe');
-                    };
-                    attachdone = true;
+
+        gsnaprecog.forEach((childSnapshot) => {   
+          
+          var beans = document.querySelectorAll(`[id^="recipe_image"]`);
+            if(beans[o].id != undefined){
+               n = beans[o].id.match(/[0-9]/);
             }
-            viewbutton.onclick = function(){sLargeRc('enrec' + childSnapshot.key)};
-            upvotebutton.onclick = function(){upvoteRecipe(childSnapshot.key, userid)};
-            childSnapshot.forEach((ccduSnapshot) =>{
-               var recipeelement = document.getElementById(ccduSnapshot.key + n);
-               if(typeof(recipeelement) != 'undefined' && recipeelement != null){
-                  if(ccduSnapshot.key == "recipe_name"){
-                    recipeelement.innerHTML = titleCase(ccduSnapshot.val());
-                  }
-                  else{
-                    recipeelement.innerHTML = ccduSnapshot.val();
-                  }
-               }
-            });
-            if(completedimageload[n] != true){
+
+            gangsi(n, childSnapshot)
               let storRef = sRef(storage, 'recipedata/' + childSnapshot.key + "/image");
               var imageelement = document.getElementById("recipe_image" + n)
       
               getBytes(storRef).then((arraybuf) => rWrec(arraybuf, false, imageelement));  
-              completedimageload[n] = true;
-            }
-            n = n + 1;
+              //completedimageload[n] = true;
+            
+            o = o+ 1
         });
-        }else if(gsnaprecog == null){
-          var recipeelement = document.getElementById('recipes');
+        }else if(gsnaprecog == null || snapshot.size == 0){
+          var recipeelement = document.getElementById('recipescontainer');
     
           recipeelement.innerHTML = "No Recipes Found, Sorry!";
         }
@@ -326,9 +281,24 @@ selectElement.addEventListener('change', (event) => {
 
 });
 
-function createRec(recinum){
+function createRec(recinum, boldol){
 
+  if($("#recipescontainer").contents().filter(function() {
+    return this.nodeType == Node.TEXT_NODE;
+  }).text() != undefined){
+    $("#recipescontainer").contents().filter(function() {
+      return this.nodeType == Node.TEXT_NODE;
+    }).remove();
+  }
+  
   const myNode = document.getElementsByClassName("colDiv");
+
+  if(boldol != true){
+
+  while(recinum < myNode.length){
+    myNode[0].remove();
+  }
+  if(myNode != undefined){
   for(var n = 0; n < myNode.length; n++){
   for (var i = 0; i < myNode.childElementCount; i++) {
     var nodres = myNode[n].childNodes.item(i).id;
@@ -339,8 +309,17 @@ function createRec(recinum){
   }
   }
 }
-if(document.querySelectorAll(`[class^="colDiv"]`).length == 0){
-for(var i = 0; i < recinum; i++){
+  }
+  }
+
+if(document.querySelectorAll(`[class^="colDiv"]`).length == 0 || boldol == true){
+  var p = 0;
+for(var i = document.querySelectorAll(`[class^="colDiv"]`).length; i < recinum; i++){
+
+  while(document.getElementById('recipe_image' + i) != undefined){
+    i++;
+    recinum++;
+  }
 
   //get all vars of recipe[i]
 
@@ -379,7 +358,7 @@ ndiv.insertAdjacentHTML('beforeend', `
 
   cardDiv.append(ndiv);
 
-  if(completedimageload[i] != true){
+  if(completedimageload[p] != true || boldol == true){
     var imagerecipe = document.createElement("img");
 
     imagerecipe.id = ("recipe_image" + i);
@@ -392,7 +371,7 @@ ndiv.insertAdjacentHTML('beforeend', `
 if(isadmin != true){
   document.getElementById('edit_recipe' + i).remove();
 }
-
+p++;
 
 }
 //sort recipes into official and non-offical. The official ones you can play on the minigame.
