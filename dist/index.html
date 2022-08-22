@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html style="
-background-image: url('https://images.unsplash.com/photo-1528712306091-ed0763094c98?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=440&q=80');
 height: 100%;
 position: relative;
 background-position: center;
@@ -12,6 +11,7 @@ background-repeat: no-repeat;
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="main.css">
+    <link href='https://fonts.googleapis.com/css?family=Staatliches' rel='stylesheet'>
     
     <title>Bit Cook</title> 
 
@@ -23,15 +23,31 @@ background-repeat: no-repeat;
       <script>
         
 function show(shown) {
+  $('body')[0].style['background-image'] = "linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ),url('https://images.unsplash.com/photo-1528712306091-ed0763094c98?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=440&q=80')";
+
+  $('html')[0].style['background-image'] = "linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ),url('https://images.unsplash.com/photo-1528712306091-ed0763094c98?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=440&q=80')";
   window.location.hash = '#' + shown;
   var ids = $("#contentmain > div").map(function() {
       return this.id;
   }).get();
 
   for(var i = 0; i < ids.length; i++){
-    document.getElementById(ids[i]).style.display='none';
+    if(ids[i] == 'home' && ids[i] != shown){
+      document.getElementById(ids[i]).classList.remove('d-flex');
+      document.getElementById(ids[i]).classList.add('d-none')
+    }else{
+      document.getElementById(ids[i]).style.display='none';
+    }
+    
   }
-  document.getElementById(shown).style.display='block';
+  if(shown == 'home'){
+    document.getElementById(shown).classList.remove('d-none');
+    document.getElementById(shown).classList.add('d-flex')
+    
+    }else{
+      document.getElementById(shown).style.display='block';
+    }
+  
   return false;
   }
       </script>
@@ -40,7 +56,6 @@ function show(shown) {
 
 
   <body id="contentmain" style="
-  background-image: url('https://images.unsplash.com/photo-1528712306091-ed0763094c98?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=440&q=80');
   height: 100%;
   position: relative;
   background-position: center;
@@ -103,12 +118,18 @@ function show(shown) {
 
 
 
-      <div id="home">      
-        <h1 id="title">Bit Cook</h1>
-        <a href="#game" onclick="show('game');">Start Game</a>
+      <div id="home" class="d-none flex-column justify-content-center">      
+        <h1 id="title" class="text-success mx-auto my-5">Bit Cook</h1>
+        <h1 class="text-white mx-auto my-3 display-3" style="font-family: 'Staatliches'; text-shadow: 4px 4px forestgreen;" >Learn How To Cook</h1>
+        <p class="text-light mx-auto my-2">For recommended recipes scroll down!</p>
+        <div class="container">
+          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3" id="srecipescontainer">
+
+          </div>
+        </div>
     </div>
 
-    <div id="game">
+    <div id="game" style="display: none">
       <section id="whenSignedOut">
         <h1>Please Sign In With Google Account</h1>
       </section>
@@ -118,36 +139,29 @@ function show(shown) {
      </section>
     </div>
 
-    <div id="recipes">
+    <div id="recipes" style="display: none">
       <div class="container">
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3" id="recipescontainer">
         </div>
       </div>
     </div>
     
-    <div id="about">
+    <div id="about" style="display: none">
       About
     </div>
 
-    <div id="enlargedrecipe">
+    <div id="enlargedrecipe" style="display: none">
       <div class="container my-5">
-        <div class="col-lg-4 offset-lg-1 p-0 overflow-hidden shadow-lg" id="enlargedimagesrc">
-          
+        <img class="col-lg-4 offset-lg-1 p-0 overflow-hidden shadow-lg" id="enlargedimagesrc" width="500vw">
       </div>
       <div class="row p-4 pb-0 pe-lg-0 pt-lg-5 align-items-center rounded-3 border shadow-lg">
         <div class="col-lg-7 p-3 p-lg-5 pt-lg-3" id="recipeintning">
-          <h1 class="display-4 fw-bold lh-1">Border hero with cropped image and shadows</h1>
-          <p class="lead">Quickly design and customize responsive mobile-first sites with Bootstrap, the worlds most popular front-end open source toolkit, featuring Sass variables and mixins, responsive grid system, extensive prebuilt components, and powerful JavaScript plugins.</p>
-          <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
-            <button type="button" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold">Primary</button>
-            <button type="button" class="btn btn-outline-secondary btn-lg px-4">Default</button>
-          </div>
+
         </div>
       </div>
-    </div>
       <div class="container-fluid bg-body">
         <div id="erecipe_name">
-
+          
         </div>
         <div id="erecipe_time">
 
@@ -156,7 +170,7 @@ function show(shown) {
       </div>
     </div>
 
-    <div id="editRecipe">
+    <div id="editRecipe" style="display: none">
       <input id="fileInput" type="file">
       <button id="uploadButton">upload</button>
     </div>
