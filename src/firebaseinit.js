@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut} from "firebase/auth";
-import { getDatabase, ref, update, runTransaction,onValue, query, orderByKey, equalTo, orderByChild, startAt, endAt, limitToFirst} from "firebase/database";
+import { getDatabase, ref, update, runTransaction,onValue, query, orderByKey, equalTo, orderByChild, startAt, endAt, limitToFirst, get} from "firebase/database";
 import { getStorage, uploadBytes, getBytes, ref as sRef } from "firebase/storage";
 import 'bootstrap';
 
@@ -10,8 +10,69 @@ var completedimageload = [];
 
 var homecompletedimageload = [];
 
+const firebaseConfig = {
+  apiKey: "AIzaSyDqR2leco9zvUmnQFzbBF8PfIyUEllJHaY",
+  authDomain: "vue-firebasep.firebaseapp.com",
+  projectId: "vue-firebasep",
+  storageBucket: "vue-firebasep.appspot.com",
+  messagingSenderId: "688478706827",
+  appId: "1:688478706827:web:f1113b0f3653a7bbbcc88e",
+  measurementId: "G-K2EQGYBMQY",
+  databaseURL: "https://vue-firebasep-default-rtdb.asia-southeast1.firebasedatabase.app"
+};
+
+const app = initializeApp(firebaseConfig); 
+
+const db = getDatabase(app);
+
+const storage = getStorage();
+
+var signedin = false;
+
+var userid = null;
+
+var isadmin = false;
+
+var gsnaprecog = -3;
+
+const auth = getAuth();
+
+const whenSignedIn = $('[id=whenSignedIn]');
+const whenSignedOut = $('[id=whenSignedOut]');
+
+const signInBtn = document.getElementById('signInBtn');
+const signOutBtn = document.getElementById('signOutBtn');
+
+whenSignedIn.hide();
+whenSignedOut.hide();
+
+const provider = new GoogleAuthProvider();
+
+signInBtn.onclick = () => signInWithPopup(auth, provider);
+
+signOutBtn.onclick = () => signOut(auth);
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+      signedin = true;
+      userid = user.uid;
+      if(userid == "H0G3Y9tBJxTlrePksO8iCh9CaSH3"){
+        isadmin = true;
+      }
+      whenSignedIn.show();
+      whenSignedOut.hide();
+  } else {
+      isadmin = false;
+      whenSignedIn.hide();
+      whenSignedOut.show(); 
+  }
+});
+
+var hashrecipeloaded = new Object();
+
 function sLargeRc(shown){
-  var sogref = ref(db, 'recipes/' + shown.split(/enrec/)[1])
+  var recipeshortsplit = shown.split(/enrec/)[1];
+  var sogref = ref(db, 'recipes/' + recipeshortsplit)
   var recipeexists = true;
   onValue(sogref, (snapshot) =>{
     if(snapshot.val() == null){
@@ -30,24 +91,101 @@ function sLargeRc(shown){
     }).get();
   
     for(var i = 0; i < ids.length; i++){
-      document.getElementById(ids[i]).style.display='none';
+      if(ids[i] == 'home' && ids[i] != shown){
+        document.getElementById(ids[i]).classList.remove('d-flex');
+        document.getElementById(ids[i]).classList.add('d-none')
+      }else{
+        document.getElementById(ids[i]).style.display='none';
+      }
     }
     document.getElementById('enlargedrecipe').style.display='block';
-  
-    let storRef = sRef(storage, 'recipedata/' + shown.split(/enrec/)[1] + "/save");
+  if(hashrecipeloaded[recipeshortsplit] == undefined){
 
-    let botRef = sRef(storage, 'recipedata/' + shown.split(/enrec/)[1] + "/image");
+    hashrecipeloaded[recipeshortsplit] = true;
+
+    let storRef = sRef(storage, 'recipedata/' + recipeshortsplit + "/save");
+
+    let botRef = sRef(storage, 'recipedata/' + recipeshortsplit + "/image");
 
     let docengref = document.getElementById("recipeintning");
-
+    
     let imggref = document.getElementById("enlargedimagesrc");
+
+    let upvotecontainer = document.createElement('div');
+
+    let upvotecreltime = document.getElementById("rtdbfunctions");
+
+    upvotecontainer.innerHTML = `<button type="button" class="btn btn-sm btn-outline-secondary" style=" padding: 0;border: none;background: none; width: 5vw; height: 5vh;" id="upvote` + recipeshortsplit + `"><svg version="1.1" style="  width: 2.5vw; height: 2.5vh;"viewBox="0.0 0.0 322.9527559055118 332.40157480314963" fill="none" stroke="none" stroke-linecap="square" stroke-miterlimit="10" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><clipPath id="p.0"><path d="m0 0l322.95276 0l0 332.40158l-322.95276 0l0 -332.40158z" clip-rule="nonzero"/></clipPath><g clip-path="url(#p.0)"><path fill="#000000" fill-opacity="0.0" d="m0 0l322.95276 0l0 332.40158l-322.95276 0z" fill-rule="evenodd"/><path fill="#666666" d="m-8.08399E-5 161.32283l161.32283 -161.32283l161.32285 161.32283l-80.66142 0l0 171.59056l-161.32285 0l0 -171.59056z" fill-rule="evenodd"/></g></svg></button>`
   
+    var upvotebutton = upvotecontainer.firstChild;
+
+    var isupvoteload = false;
+
+    for(var key in hashrecipeloaded){
+      if(hashrecipeloaded[key]){
+        isupvoteload = true;
+        break;
+      }
+    }
+
+    if(isupvoteload == true){
+      var ambigupvote = document.querySelectorAll("[id^='upvote']");
+      ambigupvote.forEach((element) => {
+        if(element.firstChild.tagName == "svg"){
+            element.remove();
+              }
+            });
+      upvotebutton.onclick = function(){upvoteRecipe(recipeshortsplit, userid)};
+      upvotecreltime.append(upvotecontainer);
+    }
+    else{
+      upvotebutton.onclick = function(){upvoteRecipe(recipeshortsplit, userid)};
+      upvotecreltime.append(upvotecontainer);
+    }
+
+
+
+    onValue(ref(db, `recipes/` + recipeshortsplit), (snapshot) => {
+        snapshot.forEach((childSnapshot)  => {
+          var entrypoint = document.getElementById("e"+ childSnapshot.key);
+          //console.log(entrypoint.childNodes[entrypoint.childElementCount-1].nextSibling);
+          if(typeof(entrypoint) != 'undefined' && entrypoint != null){
+          if(childSnapshot.key == "recipe_name"){
+            entrypoint.childNodes[entrypoint.childElementCount-1].nextSibling.innerHTML = titleCase(childSnapshot.val());
+          }
+          else if(childSnapshot.key == "upvotes"){
+            entrypoint.childNodes[entrypoint.childElementCount-1].nextSibling.childNodes[entrypoint.childNodes[entrypoint.childElementCount-1].nextSibling.childElementCount-1].nextSibling.innerHTML = childSnapshot.val();
+          }
+          else{
+            entrypoint.childNodes[entrypoint.childElementCount-1].nextSibling.innerHTML = childSnapshot.val();
+          }
+        }
+        });
+    }, {
+      onlyOnce: true
+    });
+
+    onValue(ref(db, `recipes/` + recipeshortsplit), (snapshot) => {
+      snapshot.forEach((childSnapshot)  => {
+        var entrypoint = document.getElementById("e"+ childSnapshot.key);
+        if(typeof(entrypoint) != 'undefined' && entrypoint != null){
+          if(childSnapshot.key == "upvotes"){
+            entrypoint.childNodes[entrypoint.childElementCount-1].nextSibling.childNodes[entrypoint.childNodes[entrypoint.childElementCount-1].nextSibling.childElementCount-1].nextSibling.innerHTML = childSnapshot.val();
+          }
+        }
+      });
+    });
+
     getBytes(storRef).then((arraybuf) => rWrec(arraybuf, true, docengref));
 
+    imggref.src = "https://media.giphy.com/media/8agqybiK5LW8qrG3vJ/giphy.gif"
+
     getBytes(botRef).then((arraybuf) => rWrec(arraybuf, false, imggref));
+
   
     return false;
     }
+  }
     else{
       console.log("RECIPE DOES NOT EXIST");
       return false;
@@ -70,17 +208,19 @@ document.getElementById("uploadButton").onclick = () => {
     return
   }
 
-  let file = fileElement.files[0];
+  let file = fileElement.files[0];    
 
-  var finalwrite = [];
+            var finalwrite = [];
 
-  for(var i = 0; i < recipeprops.length; i++){
-    finalwrite[i] = document.getElementById("recipe_" + recipeprops[i] + "ni").value;
-  }
+            for(var i = 0; i < recipeprops.length; i++){
+              finalwrite[i] = document.getElementById("recipe_" + recipeprops[i] + "ni").value;
+            }
+          
+            writeRecipe(finalwrite[0], finalwrite[1], finalwrite[2], finalwrite[3], finalwrite[4], file);
+  
+    }
 
-  writeRecipe(finalwrite[0], finalwrite[1], finalwrite[2], finalwrite[3], finalwrite[4], file);
 
-}
 
 
 window.addEventListener('hashchange', function() {
@@ -118,70 +258,16 @@ function hasherFunc(){
   }}
 
 
-const firebaseConfig = {
-    apiKey: "AIzaSyDqR2leco9zvUmnQFzbBF8PfIyUEllJHaY",
-    authDomain: "vue-firebasep.firebaseapp.com",
-    projectId: "vue-firebasep",
-    storageBucket: "vue-firebasep.appspot.com",
-    messagingSenderId: "688478706827",
-    appId: "1:688478706827:web:f1113b0f3653a7bbbcc88e",
-    measurementId: "G-K2EQGYBMQY",
-    databaseURL: "https://vue-firebasep-default-rtdb.asia-southeast1.firebasedatabase.app"
-  };
 
-const app = initializeApp(firebaseConfig); 
-
-const db = getDatabase(app);
-
-const storage = getStorage();
-
-var signedin = false;
-
-var userid = null;
-
-var isadmin = false;
-
-var gsnaprecog = -3;
-
-const auth = getAuth();
-
-const whenSignedIn = $('[id=whenSignedIn]');
-const whenSignedOut = $('[id=whenSignedOut]');
-
-const signInBtn = document.getElementById('signInBtn');
-const signOutBtn = document.getElementById('signOutBtn');
-
-whenSignedIn.hide();
-whenSignedOut.hide();
-
-const provider = new GoogleAuthProvider();
-
-signInBtn.onclick = () => signInWithPopup(auth, provider);
-
-signOutBtn.onclick = () => signOut(auth);
-
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        signedin = true;
-        userid = user.uid;
-        if(userid == "H0G3Y9tBJxTlrePksO8iCh9CaSH3"){
-          isadmin = true;
-        }
-        whenSignedIn.show();
-        whenSignedOut.hide();
-    } else {
-        isadmin = false;
-        whenSignedIn.hide();
-        whenSignedOut.show(); 
-    }
-});
 
 var attachdone = false;
+
+var recipeshorthandonlyonce = false;
+var recipeshorthandarr = [];
 
 function gangsi(n, childSnapshot, homebol){
   if(homebol == false){
   var viewbutton = document.getElementById("view_recipe" + n);
-  var upvotebutton = document.getElementById("upvote" + n);
   if(isadmin == true && attachdone == false){
   var editbutton = document.getElementById("edit_recipe" + n);
   editbutton.onclick = function(){  
@@ -194,8 +280,11 @@ function gangsi(n, childSnapshot, homebol){
   };
   attachdone = true;
   }
-  viewbutton.onclick = function(){sLargeRc('enrec' + childSnapshot.key)};
-  upvotebutton.onclick = function(){upvoteRecipe(childSnapshot.key, userid)};
+  if(recipeshorthandonlyonce == false){
+    recipeshorthandarr[n] = childSnapshot.key;
+    
+  }
+  viewbutton.onclick = function(){ sLargeRc('enrec' + childSnapshot.key)};
   childSnapshot.forEach((ccduSnapshot) =>{
   var recipeelement = document.getElementById(ccduSnapshot.key + n);
   if(typeof(recipeelement) != 'undefined' && recipeelement != null){
@@ -210,10 +299,8 @@ function gangsi(n, childSnapshot, homebol){
         }
   else{
     var viewbutton = document.getElementById("homeview_recipe" + n);
-    var upvotebutton = document.getElementById("homeupvote" + n);
 
     viewbutton.onclick = function(){sLargeRc('enrec' + childSnapshot.key)};
-    upvotebutton.onclick = function(){upvoteRecipe(childSnapshot.key, userid)};
     childSnapshot.forEach((ccduSnapshot) =>{
     var recipeelement = document.getElementById("home" + ccduSnapshot.key + n);
     if(typeof(recipeelement) != 'undefined' && recipeelement != null){
@@ -226,6 +313,7 @@ function gangsi(n, childSnapshot, homebol){
                }
             });
           }
+          recipeshorthandonlyonce = true;
         }
 
 onValue(ref(db, 'recipes'), (snapshot) => {
@@ -249,11 +337,15 @@ onValue(ref(db, 'recipes'), (snapshot) => {
 
     if(gsnaprecog == -3){
 
-      gangsi(n, childSnapshot, false)
+      
 
         if(completedimageload[n] != true){
+          var imageelement = document.getElementById("recipe_image" + n)
+
+        imageelement.src = "https://media.giphy.com/media/8agqybiK5LW8qrG3vJ/giphy.gif"
+          gangsi(n, childSnapshot, false)
         let storRef = sRef(storage, 'recipedata/' + childSnapshot.key + "/image");
-        var imageelement = document.getElementById("recipe_image" + n)
+        
 
         getBytes(storRef).then((arraybuf) => rWrec(arraybuf, false, imageelement));  
         completedimageload[n] = true;
@@ -294,18 +386,22 @@ if(visible == true && firstload == true){
     createRec(snapshot.size, false, true)
     snapshot.forEach((childSnapshot) => {
   
-        gangsi(n, childSnapshot, true)
+        
   
           if(homecompletedimageload[n] != true){
+            var imageelement = document.getElementById("homerecipe_image" + n)
+
+          imageelement.src = "https://media.giphy.com/media/8agqybiK5LW8qrG3vJ/giphy.gif"
+            gangsi(n, childSnapshot, true)
           let storRef = sRef(storage, 'recipedata/' + childSnapshot.key + "/image");
-          var imageelement = document.getElementById("homerecipe_image" + n)
+          
   
           getBytes(storRef).then((arraybuf) => rWrec(arraybuf, false, imageelement));  
           homecompletedimageload[n] = true;
         n = n + 1;
       }
     });
-  })
+  },{ onlyOnce: true})
 firstload = false;
 }
 });
@@ -313,11 +409,26 @@ firstload = false;
 
 var selectElement = document.getElementById('searchnavbar');
 
+var firsttoggle = true;
+
+selectElement.addEventListener('input', (event) => {
+    if(firsttoggle == true){
+      $('.dropdown-toggle').dropdown('toggle')
+      firsttoggle = false;
+    }
+});
+
 selectElement.addEventListener('change', (event) => {
 
+  if(firsttoggle == false){
+    $('.dropdown-toggle').dropdown('toggle');
+    firsttoggle = true;
+  }
   //window.location.search = selectElement.value;
   //var b = window.location.href.substring(window.location.href.indexOf("?")+1, window.location.href.indexOf("#"));
   var b = selectElement.value;
+
+  
 
   var b = b.split(" ");
 
@@ -342,9 +453,13 @@ selectElement.addEventListener('change', (event) => {
                n = beans[o].id.match(/[0-9]/);
             }
 
+            var imageelement = document.getElementById("recipe_image" + n)
+
+            imageelement.src = "https://media.giphy.com/media/8agqybiK5LW8qrG3vJ/giphy.gif";
+
             gangsi(n, childSnapshot, false)
               let storRef = sRef(storage, 'recipedata/' + childSnapshot.key + "/image");
-              var imageelement = document.getElementById("recipe_image" + n)
+
       
               getBytes(storRef).then((arraybuf) => rWrec(arraybuf, false, imageelement));  
               //completedimageload[n] = true;
@@ -364,6 +479,7 @@ selectElement.addEventListener('change', (event) => {
 });
 
 function createRec(recinum, boldol, homebol){
+  
 
   if(homebol == false){
 
@@ -416,6 +532,8 @@ for(var i = document.querySelectorAll(`[class^="colDiv"]`).length; i < recinum; 
 
   var colDiv = document.createElement("div")
 
+  cardDiv.id = "view_recipe" + i;
+
   colDiv.classList.add("colDiv");
 
   colDiv.appendChild(cardDiv);
@@ -432,10 +550,8 @@ ndiv.insertAdjacentHTML('beforeend', `
     <small class="text-muted" id="recipe_time` + i + `"></small>
     <div class="d-flex justify-content-between align-items-center">
       <div class="btn-group">
-        <button type="button" class="btn btn-sm btn-outline-secondary" id="view_recipe` + i + `">View</button>
         <button type="button" class="btn btn-sm btn-outline-secondary" id="edit_recipe` + i + `">Edit</button>
-        <button type="button" class="btn btn-sm btn-outline-secondary" id="upvote` + i + `">Upvote</button>
-       <small id="upvotes` + i + `"></small>
+        <small id="upvotes` + i + `"></small>
       </div>
     </div>
 `)
@@ -449,6 +565,8 @@ ndiv.insertAdjacentHTML('beforeend', `
     imagerecipe.id = ("recipe_image" + i);
 
     var beforeinsert = ndiv;
+
+    cardDiv.insertBefore(imagerecipe, beforeinsert);
 
     cardDiv.insertBefore(imagerecipe, beforeinsert);
   }
@@ -475,6 +593,8 @@ for(var i = document.querySelectorAll(`[class="colDi"]`).length; i < recinum; i+
 
   var cardDiv = document.createElement("div")
 
+  cardDiv.id = "homeview_recipe" + i;
+
   cardDiv.classList.add("card")
 
   cardDiv.classList.add("shadow-sm");
@@ -498,9 +618,7 @@ ndiv.insertAdjacentHTML('beforeend', `
     <small class="text-muted" id="homerecipe_time` + i + `"></small>
     <div class="d-flex justify-content-between align-items-center">
       <div class="btn-group">
-        <button type="button" class="btn btn-sm btn-outline-secondary" id="homeview_recipe` + i + `">View</button>
-        <button type="button" class="btn btn-sm btn-outline-secondary" id="homeupvote` + i + `">Upvote</button>
-       <small id="homeupvotes` + i + `"></small>
+        <small>Upvotes: </small><small id="homeupvotes` + i + `"></small>
       </div>
     </div>
 `)
@@ -533,6 +651,7 @@ function writeRecipe(recipe_shorthand, recipe_name, recipe_time, recipe_ingredie
 
       var savefile = new File(["<div id='erecipe_ingredients'>" + recipe_ingredients + "</div><div id='erecipe_instructions'>" + recipe_instructions + "</div>"],recipe_shorthand + "save", {type: "text/html"});
         
+      console.log(recipe_image)
       uploadBytes(sRef(storage, 'recipedata/' + recipe_shorthand + "/image"), recipe_image).then((snapshot) => {
         console.log('Uploaded image');
       });
@@ -557,6 +676,15 @@ function upvoteRecipe(recipe_shorthand, userid){
             data = data[recipe_shorthand];
             }
             if(data == null || data == 0){
+              var ambigupvote = document.querySelectorAll("[id^='upvote']");
+             ambigupvote.forEach((element) => {
+              if(element.firstChild.tagName == "svg"){
+                var htmlString = '<svg style="width: 2.5vw; height: 2.5vh;" version="1.1" viewBox="0.0 0.0 322.9527559055118 332.40157480314963" fill="none" stroke="none" stroke-linecap="square" stroke-miterlimit="10" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><clipPath id="p.0"><path d="m0 0l322.95276 0l0 332.40158l-322.95276 0l0 -332.40158z" clip-rule="nonzero"/></clipPath><g clip-path="url(#p.0)"><path fill="#000000" fill-opacity="0.0" d="m0 0l322.95276 0l0 332.40158l-322.95276 0z" fill-rule="evenodd"/><path fill="#ff9900" d="m-8.08399E-5 161.32283l161.32283 -161.32283l161.32285 161.32283l-80.66142 0l0 171.59056l-161.32285 0l0 -171.59056z" fill-rule="evenodd"/></g></svg>'
+                var div = document.createElement('div');
+                div.innerHTML = htmlString.trim();                   
+                element.firstChild.replaceWith(div.firstChild);
+              }
+             })
               runTransaction(upvotesRef, (current_value) => {
 
                 update(userref, {
@@ -567,6 +695,16 @@ function upvoteRecipe(recipe_shorthand, userid){
               });
             }
             else{
+              var ambigupvote = document.querySelectorAll("[id^='upvote']");
+             ambigupvote.forEach((element) => {
+              if(element.firstChild.tagName == "svg"){
+                var htmlString = '<svg style="width: 2.5vw; height: 2.5vh;" version="1.1" viewBox="0.0 0.0 322.9527559055118 332.40157480314963" fill="none" stroke="none" stroke-linecap="square" stroke-miterlimit="10" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><clipPath id="p.0"><path d="m0 0l322.95276 0l0 332.40158l-322.95276 0l0 -332.40158z" clip-rule="nonzero"/></clipPath><g clip-path="url(#p.0)"><path fill="#000000" fill-opacity="0.0" d="m0 0l322.95276 0l0 332.40158l-322.95276 0z" fill-rule="evenodd"/><path fill="#666666" d="m-8.08399E-5 161.32283l161.32283 -161.32283l161.32285 161.32283l-80.66142 0l0 171.59056l-161.32285 0l0 -171.59056z" fill-rule="evenodd"/></g></svg>'
+                var div = document.createElement('div');
+                div.innerHTML = htmlString.trim();                   
+                element.firstChild.replaceWith(div.firstChild);
+              }
+             })
+                
               runTransaction(upvotesRef, (current_value) => {
 
                 update(userref, {
@@ -650,20 +788,17 @@ function rWrec(recbuffer, boolsav, htmname){
     
       })();
     }else{
-      
+      console.log("loading");
       (async () => {
-        let recblob = new Blob([recbuffer], {type : "img/png"});
+        let recblob = new Blob([recbuffer], {type : "img/jpeg"});
         var urlCreator = window.URL || window.webkitURL;
         var imageUrl = urlCreator.createObjectURL(recblob);
+        htmname.style.background = "";
         htmname.src = imageUrl;
       })();
     }   
 }
 
-
-function recommendRecipes(){
-
-}
 
 //var firstrecipe = document.getElementById("recipes").firstChild.firstChild.firstChild;
 

@@ -43,7 +43,7 @@ function show(shown) {
   if(shown == 'home'){
     document.getElementById(shown).classList.remove('d-none');
     document.getElementById(shown).classList.add('d-flex')
-    
+
     }else{
       document.getElementById(shown).style.display='block';
     }
@@ -99,7 +99,15 @@ function show(shown) {
           </li>-->
           <li><button href="#recipes" onclick="show('recipes');" class="nav-link px-3 text-success btn btn-dark" >Recipes</button></li>
           <div class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
-            <input type="text" class="form-control form-control-dark text-white bg-dark" id="searchnavbar" placeholder="Search Recipes" aria-label="Search">
+            <input autocomplete="off" type="text" class="dropdown-toggle form-control form-control-dark text-white bg-dark" data-toggle="dropdown" id="searchnavbar" placeholder="Search Recipes" aria-label="Search">
+            <div class=" dropdown-menu dropdown-menu-dark" aria-labelledby="searchnavbar">
+              <ul class="list-unstyled mb-0">
+                <li><a class="dropdown-item d-flex align-items-center gap-2 py-2" href="#" >
+                  <span class="d-inline-block p-1"></span>
+                  Level 1
+                </a></li>
+                </ul>
+            </div>
           </div>
           <div class="justify-content-center mx-auto">
           <li><button href="#home" class="nav-link text-light btn btn-dark fs-5"  onclick="show('home');">Home</button></li>
@@ -141,6 +149,7 @@ function show(shown) {
 
     <div id="recipes" style="display: none">
       <div class="container">
+        
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3" id="recipescontainer">
         </div>
       </div>
@@ -151,23 +160,32 @@ function show(shown) {
     </div>
 
     <div id="enlargedrecipe" style="display: none">
-      <div class="container my-5">
-        <img class="col-lg-4 offset-lg-1 p-0 overflow-hidden shadow-lg" id="enlargedimagesrc" width="500vw">
+        <div id="erecipe_name">
+          <h1 class="text-center display-4 my-5">Loading...</h1>
+        </div>
+        <div class="d-flex justify-content-center">
+        <div id="eservings" class="d-flex justify-content-center">
+          <p class="text-info">Servings:&nbsp</p><p>Loading...</p>
+        </div>
+        <div id="erecipe_time" class="d-flex justify-content-center">
+          <p class="ms-5 text-info">Total Time:&nbsp</p><p>Loading...</p>
+        </div>
       </div>
-      <div class="row p-4 pb-0 pe-lg-0 pt-lg-5 align-items-center rounded-3 border shadow-lg">
+      <div class="container">
+        <img class="my-5 img-fluid" id="enlargedimagesrc" width="100%">
+      </div>
+      <div class="d-flex justify-content-start align-items-start" id="rtdbfunctions">
+      <div id="eupvotes" class="d-flex justify-content-start ">
+        <span class="badge bg-primary">Upvotes:&nbsp<span class="badge bg-secondary">Loading...</span></span>
+      </div>
+      
+    </div>
+      <div class="align-items-center rounded-3 border shadow-lg">
         <div class="col-lg-7 p-3 p-lg-5 pt-lg-3" id="recipeintning">
 
         </div>
       </div>
-      <div class="container-fluid bg-body">
-        <div id="erecipe_name">
-          
-        </div>
-        <div id="erecipe_time">
 
-        </div>
-
-      </div>
     </div>
 
     <div id="editRecipe" style="display: none">
